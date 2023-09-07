@@ -1,0 +1,10 @@
+{
+    "manifest_version" : 3,
+    "name": "Groupify",
+    "description": "Take organizing your browser to the next level",
+    "version": "0.1",
+    "action": {
+        "default_popup" : "main.html",
+        "default_icon" : "groupify_icon.png"
+    }
+}
