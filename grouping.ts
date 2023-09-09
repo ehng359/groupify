@@ -6,10 +6,89 @@ main.addEventListener("click", () => {
 })
 
 let form = document.getElementById("main")
-
+var textarea : HTMLCollectionOf<HTMLTextAreaElement>
 let local_index = localStorage.getItem("total")
 let index = local_index == null ? form!.childElementCount : Number(local_index) - 1
 let selectionRange = [-1, -1]
+
+const delegateButtons = () => {
+    let buttons = document.getElementsByTagName("button")
+    for (let i = 0; i < buttons.length; i+=1) {
+        if (buttons[i].id == "addGrouping") {
+            continue
+        }
+        buttons[i].addEventListener("click", (event) => {
+            let target = <HTMLButtonElement> event.currentTarget
+            let id = target.id.slice(1, target.id.length)
+            console.log("id", id)
+            let div = document.getElementById(`d${id}`)
+            div!.innerHTML = ""
+            div?.remove()
+            localSave()
+        })
+    }
+}
+
+function textAreaInputHandler(event : KeyboardEvent) {
+    let target = <HTMLElement> event.currentTarget
+    let inputTarget = <HTMLInputElement> event.currentTarget
+    let cursorPosition = inputTarget.selectionStart!
+    switch (event.key) {
+        case "Shift":
+        case "Control":
+        case "Enter":
+        case "Alt":
+        case "Meta":
+            event.preventDefault()
+            break;
+        case "Tab":
+            break;
+        case "Backspace":
+            event.preventDefault()
+            if (selectionRange[0] != -1) {
+                let str = target.innerHTML
+                target.innerHTML = str.slice(0, selectionRange[0]) + str.slice(selectionRange[1], str.length)
+                selectionRange = [-1, -1]
+            } else {
+                target.innerHTML = target.innerHTML.slice(0, -1)
+                cursorPosition = cursorPosition == 0 ? 0 : cursorPosition - 1
+            }
+            break;
+        default:
+            event.preventDefault()
+            if (selectionRange[0] != -1) {
+                let str = target.innerHTML
+                target.innerHTML = str.slice(0, selectionRange[0]) + event.key + str.slice(selectionRange[1], str.length)
+                selectionRange = [-1, -1]
+            } else {
+                target.innerHTML = target.innerHTML + event.key
+                cursorPosition += 1
+            }
+    }
+    console.log("End cursor position", cursorPosition)
+    inputTarget.setSelectionRange(cursorPosition, cursorPosition)
+    localSave()
+}
+
+function textAreaSelectionHandler (event : Event) {
+    var target = <HTMLInputElement> event.currentTarget
+    let start = target.selectionStart!
+    let end = target.selectionEnd!
+    console.log("Selecting item")
+    if (start != end) {
+        selectionRange[0] = start
+        selectionRange[1] = end
+    }
+}
+
+const delegateTextAreas = () => {
+    let textareas = document.getElementsByTagName("textarea")
+    for (let i = 0; i < textareas.length; i++) {
+        textareas[i].addEventListener("keydown", textAreaInputHandler)
+        textareas[i].addEventListener("select", textAreaSelectionHandler)
+    }
+    return textareas
+}
 
 if (index != null) {
     console.log("Init")
@@ -17,67 +96,12 @@ if (index != null) {
     if (localContents != null) {
         localContents = localContents.replace(/(\\|\")/g, "")
         form!.insertAdjacentHTML("beforeend", localContents)
+
+        // Initializing existing interactables
+        textarea = delegateTextAreas()
+        delegateButtons()
     }
 }
-
-const delegateTextAreas = () => {
-    let textareas = document.getElementsByTagName("textarea")
-    for (let i = 0; i < textareas.length; i++) {
-        textareas[i].addEventListener("keydown", (event) => {
-            let target = <HTMLElement> event.currentTarget
-            let inputTarget = <HTMLInputElement> event.currentTarget
-            let cursorPosition = inputTarget.selectionStart!
-            switch (event.key) {
-                case "Shift":
-                case "Control":
-                case "Enter":
-                case "Alt":
-                case "Meta":
-                    event.preventDefault()
-                    break;
-                case "Tab":
-                    break;
-                case "Backspace":
-                    event.preventDefault()
-                    if (selectionRange[0] != -1) {
-                        let str = target.innerHTML
-                        target.innerHTML = str.slice(0, selectionRange[0]) + str.slice(selectionRange[1], str.length)
-                        selectionRange = [-1, -1]
-                    } else {
-                        target.innerHTML = target.innerHTML.slice(0, -1)
-                        cursorPosition = cursorPosition == 0 ? 0 : cursorPosition - 1
-                    }
-                    break;
-                default:
-                    event.preventDefault()
-                    if (selectionRange[0] != -1) {
-                        let str = target.innerHTML
-                        target.innerHTML = str.slice(0, selectionRange[0]) + event.key + str.slice(selectionRange[1], str.length)
-                        selectionRange = [-1, -1]
-                    } else {
-                        target.innerHTML = target.innerHTML + event.key
-                        cursorPosition += 1
-                    }
-            }
-            console.log("End cursor position", cursorPosition)
-            inputTarget.setSelectionRange(cursorPosition, cursorPosition)
-            localSave()
-        })
-        textareas[i].addEventListener("select", (event) => {
-            var target = <HTMLInputElement> event.currentTarget
-            let start = target.selectionStart!
-            let end = target.selectionEnd!
-            console.log("Selecting item")
-            if (start != end) {
-                selectionRange[0] = start
-                selectionRange[1] = end
-            }
-        })
-    }
-    return textareas
-}
-
-let textarea = delegateTextAreas()
 
 function localSave() : void {
     localStorage.setItem("total", String(index ? index + 1 : 0))
@@ -100,16 +124,24 @@ function addGrouping() : void {
             <button id=b${index}>X</button>
         </div>`
     form!.insertAdjacentHTML("beforeend", element)
-    let button = document.getElementById(`b${index}`)!
-    console.log(button)
-    button.addEventListener("click", (event) => {
+
+    let button = document.getElementById(`b${index}`)
+    button!.addEventListener("click", (event) => {
         let target = <HTMLButtonElement> event.currentTarget
         let id = target.id.slice(1, target.id.length)
         let div = document.getElementById(`d${id}`)
         div!.innerHTML = ""
         div?.remove()
+        localSave()
     })
-    textarea = delegateTextAreas()
+
+    let textAreaKey = document.getElementById(`key${index}`)
+    textAreaKey?.addEventListener("keydown", textAreaInputHandler)
+    textAreaKey?.addEventListener("select", textAreaSelectionHandler)
+
+    let textAreaValue = document.getElementById(`value${index}`)
+    textAreaValue?.addEventListener("keydown", textAreaInputHandler)
+    textAreaValue?.addEventListener("select", textAreaSelectionHandler)
 
     // Cleanup
     index += 1
