@@ -27,7 +27,6 @@ const delegateTextAreas = () => {
             let target = <HTMLElement> event.currentTarget
             let inputTarget = <HTMLInputElement> event.currentTarget
             let cursorPosition = inputTarget.selectionStart!
-            console.log("Initial Cursor position", cursorPosition)
             switch (event.key) {
                 case "Shift":
                 case "Control":
@@ -39,30 +38,23 @@ const delegateTextAreas = () => {
                 case "Tab":
                     break;
                 case "Backspace":
-                    console.log("Delete")
                     event.preventDefault()
                     if (selectionRange[0] != -1) {
-                        console.log("Multi-delete")
                         let str = target.innerHTML
                         target.innerHTML = str.slice(0, selectionRange[0]) + str.slice(selectionRange[1], str.length)
                         selectionRange = [-1, -1]
                     } else {
-                        console.log("Single-delete")
                         target.innerHTML = target.innerHTML.slice(0, -1)
                         cursorPosition = cursorPosition == 0 ? 0 : cursorPosition - 1
                     }
                     break;
                 default:
                     event.preventDefault()
-                    // selectionDefault != null
-                    console.log("Insert")
                     if (selectionRange[0] != -1) {
-                        console.log("multi-select replace char")
                         let str = target.innerHTML
                         target.innerHTML = str.slice(0, selectionRange[0]) + event.key + str.slice(selectionRange[1], str.length)
                         selectionRange = [-1, -1]
                     } else {
-                        console.log("Single char")
                         target.innerHTML = target.innerHTML + event.key
                         cursorPosition += 1
                     }
@@ -98,17 +90,29 @@ function localSave() : void {
 document.getElementById("addGrouping")?.addEventListener("click", addGrouping)
 
 function addGrouping() : void {
-    const element = `
-        <label for=label${index} name=grouping${index}>Grouping ${index}</label>
-        <section id=label${index}>
-            <textarea id=key${index}></textarea>
-            <textarea id=value${index}></textarea>
-        </section>
-    `
+    const element = 
+        `<div id=d${index}>
+            <label for=label${index} name=grouping${index}>Grouping ${index}</label>
+            <section id=label${index}>
+                <textarea id=key${index}></textarea>
+                <textarea id=value${index}></textarea>
+            </section>
+            <button id=b${index}>X</button>
+        </div>`
     form!.insertAdjacentHTML("beforeend", element)
-    console.log(element)
-    index += 1
+    let button = document.getElementById(`b${index}`)!
+    console.log(button)
+    button.addEventListener("click", (event) => {
+        let target = <HTMLButtonElement> event.currentTarget
+        let id = target.id.slice(1, target.id.length)
+        let div = document.getElementById(`d${id}`)
+        div!.innerHTML = ""
+        div?.remove()
+    })
     textarea = delegateTextAreas()
+
+    // Cleanup
+    index += 1
     localSave()
 }
 

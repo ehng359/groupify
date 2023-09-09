@@ -24,7 +24,6 @@ var delegateTextAreas = function () {
             var target = event.currentTarget;
             var inputTarget = event.currentTarget;
             var cursorPosition = inputTarget.selectionStart;
-            console.log("Initial Cursor position", cursorPosition);
             switch (event.key) {
                 case "Shift":
                 case "Control":
@@ -36,32 +35,25 @@ var delegateTextAreas = function () {
                 case "Tab":
                     break;
                 case "Backspace":
-                    console.log("Delete");
                     event.preventDefault();
                     if (selectionRange[0] != -1) {
-                        console.log("Multi-delete");
                         var str = target.innerHTML;
                         target.innerHTML = str.slice(0, selectionRange[0]) + str.slice(selectionRange[1], str.length);
                         selectionRange = [-1, -1];
                     }
                     else {
-                        console.log("Single-delete");
                         target.innerHTML = target.innerHTML.slice(0, -1);
                         cursorPosition = cursorPosition == 0 ? 0 : cursorPosition - 1;
                     }
                     break;
                 default:
                     event.preventDefault();
-                    // selectionDefault != null
-                    console.log("Insert");
                     if (selectionRange[0] != -1) {
-                        console.log("multi-select replace char");
                         var str = target.innerHTML;
                         target.innerHTML = str.slice(0, selectionRange[0]) + event.key + str.slice(selectionRange[1], str.length);
                         selectionRange = [-1, -1];
                     }
                     else {
-                        console.log("Single char");
                         target.innerHTML = target.innerHTML + event.key;
                         cursorPosition += 1;
                     }
@@ -93,11 +85,20 @@ function localSave() {
 }
 (_a = document.getElementById("addGrouping")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", addGrouping);
 function addGrouping() {
-    var element = "\n        <label for=label".concat(index, " name=grouping").concat(index, ">Grouping ").concat(index, "</label>\n        <section id=label").concat(index, ">\n            <textarea id=key").concat(index, "></textarea>\n            <textarea id=value").concat(index, "></textarea>\n        </section>\n    ");
+    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping ").concat(index, "</label>\n            <section id=label").concat(index, ">\n                <textarea id=key").concat(index, "></textarea>\n                <textarea id=value").concat(index, "></textarea>\n            </section>\n            <button id=b").concat(index, ">X</button>\n        </div>");
     form.insertAdjacentHTML("beforeend", element);
-    console.log(element);
-    index += 1;
+    var button = document.getElementById("b".concat(index));
+    console.log(button);
+    button.addEventListener("click", function (event) {
+        var target = event.currentTarget;
+        var id = target.id.slice(1, target.id.length);
+        var div = document.getElementById("d".concat(id));
+        div.innerHTML = "";
+        div === null || div === void 0 ? void 0 : div.remove();
+    });
     textarea = delegateTextAreas();
+    // Cleanup
+    index += 1;
     localSave();
 }
 // Note: we can store items from previous session
