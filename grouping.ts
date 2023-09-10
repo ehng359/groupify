@@ -1,5 +1,4 @@
-// Load currently available items that have been saved through localStorage.
-// for (var i=0; i < ...; i++) loop through all of the sections
+// Script
 let main = document.getElementsByTagName("body")[0]
 main.addEventListener("click", () => {
     selectionRange = [-1, -1]
@@ -7,14 +6,76 @@ main.addEventListener("click", () => {
 
 let form = document.getElementById("main")
 var textarea : HTMLCollectionOf<HTMLTextAreaElement>
+var tabs : Array<chrome.tabs.Tab>
+
 let local_index = localStorage.getItem("total")
 let index = local_index == null ? form!.childElementCount : Number(local_index) - 1
 let selectionRange = [-1, -1]
 
+function localSave() : void {
+    localStorage.setItem("total", String(index ? index + 1 : 0))
+    let formContents = form!.innerHTML
+    formContents = formContents.replace(/(\r\n|\n|\r)/gm, "")
+    formContents = formContents.trim()
+    localStorage.setItem("formContents", JSON.stringify(formContents))
+}
+
+const getTabs = async () => {
+    var queryResults = await chrome.tabs.query(
+        {   
+            "currentWindow" : true,
+            "groupId" : -1,
+        }
+    )
+    tabs = queryResults
+}
+
+const createGroupings = async() => {
+    // Iterating through every instance of the groupings (each key-value pairing)
+    for (var i = 0; i < textarea.length; i+=2) {
+        var groupName = textarea[i].innerHTML
+        var keys = textarea[i + 1].innerHTML
+        if (keys == "") {
+            continue
+        }
+
+        var search = keys.split(',')
+
+        var matches : Array<number> = []
+        tabs.map((tab, index) => {
+            var title = tab.title!
+            var url = tab.url!
+
+            var hasMatchingKey : boolean = search.map((key) => { 
+                var re = new RegExp(key)
+                if (re.exec(title) || re.exec(url))
+                    return true
+                return false
+            })
+            .reduce((acc, x) =>  acc || x)
+            
+            if (hasMatchingKey) {
+                tabs = tabs.splice(index, 1)
+                matches.push(tab.id!)
+            }
+        })
+
+        // Create groupings with the presented matches
+        console.log(matches)
+        chrome.tabs.group({tabIds: matches}, (groupId) => {
+            chrome.tabGroups.update(groupId, { 
+                "title": groupName,
+                "color": "red",
+                "collapsed": false
+            })
+        })
+    }
+}
+
 const delegateButtons = () => {
     let buttons = document.getElementsByTagName("button")
     for (let i = 0; i < buttons.length; i+=1) {
-        if (buttons[i].id == "addGrouping") {
+        if (buttons[i].id == "addGrouping" || buttons[i].id == "createGrouping") {
             continue
         }
         buttons[i].addEventListener("click", (event) => {
@@ -90,6 +151,7 @@ const delegateTextAreas = () => {
     return textareas
 }
 
+// Initialization
 if (index != null) {
     console.log("Init")
     let localContents = localStorage.getItem("formContents")
@@ -101,17 +163,12 @@ if (index != null) {
         textarea = delegateTextAreas()
         delegateButtons()
     }
-}
 
-function localSave() : void {
-    localStorage.setItem("total", String(index ? index + 1 : 0))
-    let formContents = form!.innerHTML
-    formContents = formContents.replace(/(\r\n|\n|\r)/gm, "")
-    formContents = formContents.trim()
-    localStorage.setItem("formContents", JSON.stringify(formContents))
+    getTabs()
 }
 
 document.getElementById("addGrouping")?.addEventListener("click", addGrouping)
+document.getElementById("createGrouping")?.addEventListener("click", createGroupings)
 
 function addGrouping() : void {
     const element = 
@@ -150,12 +207,8 @@ function addGrouping() : void {
 
 
 
-// Note: we can store items from previous session
-// if (localStorage.getItem("key") == null) {
-//     localStorage.setItem("key", "string")
-// } else {
-//     console.log("Key is already stored from previous session")
-// }
-// On button click, get the total amount of elements w
+// chrome.tabs.group({"groupId" : })
 
-// export {};
+// Get ID of the tabs wanting to group based on the keyword
+
+// Create the grouping.

@@ -1,13 +1,13 @@
 {
     "manifest_version" : 3,
     "name": "Groupify",
-    "description": "Take organizing your browser to the next level",
+    "description": "Take organizing your browser to the next level. Use grouping names and key-words to automatically sync your browser.",
     "version": "0.1",
     "action": {
         "default_popup" : "main.html",
         "default_icon" : "groupify_icon.png"
     },
     "permissions": [
-        "storage"
+        "storage", "tabs", "tabGroups"
     ]
 }

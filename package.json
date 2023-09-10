@@ -11,5 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.245",
+    "@types/node": "^16.18.50"
   }
 }
