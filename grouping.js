@@ -70,42 +70,74 @@ var getTabs = function () { return __awaiter(_this, void 0, void 0, function () 
     });
 }); };
 var createGroupings = function () { return __awaiter(_this, void 0, void 0, function () {
-    var i, groupName, keys, search, matches;
+    var groupUpdate, i, groupName, keys, search, matches;
+    var _this = this;
     return __generator(this, function (_a) {
-        // Iterating through every instance of the groupings (each key-value pairing)
-        for (i = 0; i < textarea.length; i += 2) {
-            groupName = textarea[i].innerHTML;
-            keys = textarea[i + 1].innerHTML;
-            if (keys == "") {
-                continue;
-            }
-            search = keys.split(',');
-            matches = [];
-            tabs.map(function (tab, index) {
-                var title = tab.title;
-                var url = tab.url;
-                var hasMatchingKey = search.map(function (key) {
-                    var re = new RegExp(key);
-                    if (re.exec(title) || re.exec(url))
-                        return true;
-                    return false;
-                })
-                    .reduce(function (acc, x) { return acc || x; });
-                if (hasMatchingKey) {
-                    matches.push(tab.id);
+        switch (_a.label) {
+            case 0:
+                groupUpdate = function (matches, groupName, color) {
+                    if (color === void 0) { color = "red"; }
+                    return __awaiter(_this, void 0, void 0, function () {
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, chrome.tabs.group({ tabIds: matches }, function (groupId) { return __awaiter(_this, void 0, void 0, function () {
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0: return [4 /*yield*/, chrome.tabGroups.update(groupId, {
+                                                        "title": groupName,
+                                                        "color": color,
+                                                        "collapsed": false
+                                                    })];
+                                                case 1:
+                                                    _a.sent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); })];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    });
+                };
+                i = 0;
+                _a.label = 1;
+            case 1:
+                if (!(i < textarea.length)) return [3 /*break*/, 4];
+                getTabs();
+                groupName = textarea[i].innerHTML;
+                keys = textarea[i + 1].innerHTML;
+                if (keys == "") {
+                    return [3 /*break*/, 3];
                 }
-            });
-            // Create groupings with the presented matches
-            console.log(matches);
-            chrome.tabs.group({ tabIds: matches }, function (groupId) {
-                chrome.tabGroups.update(groupId, {
-                    "title": groupName,
-                    "color": "red",
-                    "collapsed": false
+                search = keys.split(',');
+                matches = [];
+                tabs.map(function (tab, index) {
+                    var title = tab.title;
+                    var url = tab.url;
+                    var hasMatchingKey = search.map(function (key) {
+                        var re = new RegExp(key);
+                        if (re.exec(title) || re.exec(url))
+                            return true;
+                        return false;
+                    })
+                        .reduce(function (acc, x) { return acc || x; });
+                    if (hasMatchingKey && tab.groupId == -1) {
+                        matches.push(tab.id);
+                    }
                 });
-            });
+                if (!matches.length) return [3 /*break*/, 3];
+                return [4 /*yield*/, groupUpdate(matches, groupName, "blue")];
+            case 2:
+                _a.sent();
+                _a.label = 3;
+            case 3:
+                i += 2;
+                return [3 /*break*/, 1];
+            case 4: return [2 /*return*/];
         }
-        return [2 /*return*/];
     });
 }); };
 var delegateButtons = function () {
@@ -201,7 +233,7 @@ if (index != null) {
 (_a = document.getElementById("addGrouping")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", addGrouping);
 (_b = document.getElementById("createGrouping")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", createGroupings);
 function addGrouping() {
-    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping ").concat(index, "</label>\n            <section id=label").concat(index, ">\n                <textarea id=key").concat(index, "></textarea>\n                <textarea id=value").concat(index, "></textarea>\n            </section>\n            <button id=b").concat(index, ">X</button>\n        </div>");
+    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping</label>\n            <section id=label").concat(index, ">\n                <textarea id=key").concat(index, "></textarea>\n                <textarea id=value").concat(index, "></textarea>\n            </section>\n            <button id=b").concat(index, ">X</button>\n        </div>");
     form.insertAdjacentHTML("beforeend", element);
     var button = document.getElementById("b".concat(index));
     button.addEventListener("click", function (event) {

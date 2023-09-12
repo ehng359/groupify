@@ -32,7 +32,18 @@ const getTabs = async () => {
 
 const createGroupings = async() => {
     // Iterating through every instance of the groupings (each key-value pairing)
+    const groupUpdate = async(matches: Array<number>, groupName : string, color: chrome.tabGroups.ColorEnum = "red") => {
+        await chrome.tabs.group({tabIds: matches}, async (groupId) => {
+            await chrome.tabGroups.update(groupId, { 
+                "title": groupName,
+                "color": color,
+                "collapsed": false
+            })
+        })
+    }
+
     for (var i = 0; i < textarea.length; i+=2) {
+        await getTabs()
         var groupName = textarea[i].innerHTML
         var keys = textarea[i + 1].innerHTML
         if (keys == "") {
@@ -54,21 +65,15 @@ const createGroupings = async() => {
             })
             .reduce((acc, x) =>  acc || x)
             
-            if (hasMatchingKey) {
-                tabs = tabs.splice(index, 1)
+            if (hasMatchingKey && tab.groupId == -1) {
                 matches.push(tab.id!)
             }
         })
 
         // Create groupings with the presented matches
-        console.log(matches)
-        chrome.tabs.group({tabIds: matches}, (groupId) => {
-            chrome.tabGroups.update(groupId, { 
-                "title": groupName,
-                "color": "red",
-                "collapsed": false
-            })
-        })
+        if (matches.length){
+            await groupUpdate(matches, groupName, "blue")
+        }
     }
 }
 
@@ -163,7 +168,6 @@ if (index != null) {
         textarea = delegateTextAreas()
         delegateButtons()
     }
-
     getTabs()
 }
 
@@ -173,7 +177,7 @@ document.getElementById("createGrouping")?.addEventListener("click", createGroup
 function addGrouping() : void {
     const element = 
         `<div id=d${index}>
-            <label for=label${index} name=grouping${index}>Grouping ${index}</label>
+            <label for=label${index} name=grouping${index}>Grouping</label>
             <section id=label${index}>
                 <textarea id=key${index}></textarea>
                 <textarea id=value${index}></textarea>

@@ -1,5 +1,5 @@
 # Groupify
-A simple chromium-based web extension that enhances your ability to group tabs, automatically.
+A Chrome browser extension that enables quality of life in automatically managing your tabs with very few persistent settings.
 
 ## Usage
 (To be updated)
