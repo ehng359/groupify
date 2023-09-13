@@ -7,12 +7,14 @@
 
     <link href="./main_o.css" rel="stylesheet">
 </head>
-<body class="w-60">
-    <img src="groupify_icon.png" class="w-48 h-48"/>
-    <div id="main">
+<body class="w-60 p-2 overflow-y-scroll no-scrollbar">
+    <img src="groupify_icon.png" class="w-56 h-56"/>
+    <div id="main" class="space-y-10 p-2">
     </div>
-    <button id="addGrouping" class="border-spacing-32 bg-gray-600 w-10 text-center">+</button>
-    <button id="createGrouping" class="rounded bg-gray-600 w-10 text-center">[ ]</button>
+    <div class="flex flex-row space-x-10 justify-center">
+        <button id="addGrouping" class=" rounded bg-gray-600 w-20 h-10 text-center">+</button>
+        <button id="createGrouping" class="rounded bg-gray-600 w-20 h-10 text-center">[ ]</button>
+    </div>
     <script src="grouping.js" type="text/javascript"></script>
 </body>
 </html>
