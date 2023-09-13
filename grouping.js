@@ -47,10 +47,13 @@ var tabs;
 var local_index = localStorage.getItem("total");
 var index = local_index == null ? form.childElementCount : Number(local_index) - 1;
 var selectionRange = [-1, -1];
+var textAreaStyling = "resize-none";
+var buttonStyling = "bg-gray-600 w-10 text-center";
+var sectionStyling = "flex-row";
 function localSave() {
     localStorage.setItem("total", String(index ? index + 1 : 0));
     var formContents = form.innerHTML;
-    formContents = formContents.replace(/(\r\n|\n|\r)/gm, "");
+    formContents = formContents.replace(/(\r\n|\n|\r|\\|\")/gm, "");
     formContents = formContents.trim();
     localStorage.setItem("formContents", JSON.stringify(formContents));
 }
@@ -105,12 +108,14 @@ var createGroupings = function () { return __awaiter(_this, void 0, void 0, func
                 i = 0;
                 _a.label = 1;
             case 1:
-                if (!(i < textarea.length)) return [3 /*break*/, 4];
-                getTabs();
+                if (!(i < textarea.length)) return [3 /*break*/, 5];
+                return [4 /*yield*/, getTabs()];
+            case 2:
+                _a.sent();
                 groupName = textarea[i].innerHTML;
                 keys = textarea[i + 1].innerHTML;
                 if (keys == "") {
-                    return [3 /*break*/, 3];
+                    return [3 /*break*/, 4];
                 }
                 search = keys.split(',');
                 matches = [];
@@ -128,15 +133,15 @@ var createGroupings = function () { return __awaiter(_this, void 0, void 0, func
                         matches.push(tab.id);
                     }
                 });
-                if (!matches.length) return [3 /*break*/, 3];
+                if (!matches.length) return [3 /*break*/, 4];
                 return [4 /*yield*/, groupUpdate(matches, groupName, "blue")];
-            case 2:
-                _a.sent();
-                _a.label = 3;
             case 3:
+                _a.sent();
+                _a.label = 4;
+            case 4:
                 i += 2;
                 return [3 /*break*/, 1];
-            case 4: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };
@@ -223,6 +228,9 @@ if (index != null) {
     var localContents = localStorage.getItem("formContents");
     if (localContents != null) {
         localContents = localContents.replace(/(\\|\")/g, "");
+        localContents = localContents.replace(RegExp("".concat(buttonStyling), 'g'), "\"".concat(buttonStyling, "\""));
+        localContents = localContents.replace(RegExp("".concat(sectionStyling), 'g'), "\"".concat(sectionStyling, "\""));
+        localContents = localContents.replace(RegExp("".concat(textAreaStyling), 'g'), "\"".concat(textAreaStyling, "\""));
         form.insertAdjacentHTML("beforeend", localContents);
         // Initializing existing interactables
         textarea = delegateTextAreas();
@@ -233,7 +241,7 @@ if (index != null) {
 (_a = document.getElementById("addGrouping")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", addGrouping);
 (_b = document.getElementById("createGrouping")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", createGroupings);
 function addGrouping() {
-    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping</label>\n            <section id=label").concat(index, ">\n                <textarea id=key").concat(index, "></textarea>\n                <textarea id=value").concat(index, "></textarea>\n            </section>\n            <button id=b").concat(index, ">X</button>\n        </div>");
+    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping</label>\n            <section id=label").concat(index, " class=\"").concat(sectionStyling, "\">\n                <textarea id=key").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n                <textarea id=value").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n            </section>\n            <button id=b").concat(index, " class=\"").concat(buttonStyling, "\">X</button>\n        </div>");
     form.insertAdjacentHTML("beforeend", element);
     var button = document.getElementById("b".concat(index));
     button.addEventListener("click", function (event) {

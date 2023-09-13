@@ -12,10 +12,14 @@ let local_index = localStorage.getItem("total")
 let index = local_index == null ? form!.childElementCount : Number(local_index) - 1
 let selectionRange = [-1, -1]
 
+let textAreaStyling = "resize-none"
+let buttonStyling = "bg-gray-600 w-10 text-center"
+let sectionStyling = "flex-row"
+
 function localSave() : void {
     localStorage.setItem("total", String(index ? index + 1 : 0))
     let formContents = form!.innerHTML
-    formContents = formContents.replace(/(\r\n|\n|\r)/gm, "")
+    formContents = formContents.replace(/(\r\n|\n|\r|\\|\")/gm, "")
     formContents = formContents.trim()
     localStorage.setItem("formContents", JSON.stringify(formContents))
 }
@@ -162,6 +166,9 @@ if (index != null) {
     let localContents = localStorage.getItem("formContents")
     if (localContents != null) {
         localContents = localContents.replace(/(\\|\")/g, "")
+        localContents = localContents.replace(RegExp(`${buttonStyling}`, 'g'), `\"${buttonStyling}\"`)
+        localContents = localContents.replace(RegExp(`${sectionStyling}`, 'g'), `\"${sectionStyling}\"`)
+        localContents = localContents.replace(RegExp(`${textAreaStyling}`, 'g'), `\"${textAreaStyling}\"`)
         form!.insertAdjacentHTML("beforeend", localContents)
 
         // Initializing existing interactables
@@ -178,11 +185,11 @@ function addGrouping() : void {
     const element = 
         `<div id=d${index}>
             <label for=label${index} name=grouping${index}>Grouping</label>
-            <section id=label${index}>
-                <textarea id=key${index}></textarea>
-                <textarea id=value${index}></textarea>
+            <section id=label${index} class="${sectionStyling}">
+                <textarea id=key${index} class="${textAreaStyling}"></textarea>
+                <textarea id=value${index} class="${textAreaStyling}"></textarea>
             </section>
-            <button id=b${index}>X</button>
+            <button id=b${index} class="${buttonStyling}">X</button>
         </div>`
     form!.insertAdjacentHTML("beforeend", element)
 
