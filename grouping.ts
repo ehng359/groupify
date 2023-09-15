@@ -12,9 +12,10 @@ let local_index = localStorage.getItem("total")
 let index = local_index == null ? form!.childElementCount : Number(local_index) - 1
 let selectionRange = [-1, -1]
 
-let textAreaStyling = "resize-none"
-let buttonStyling = "bg-gray-600 w-10 text-center"
-let sectionStyling = "flex-row"
+let textAreaStyling = "resize-none p-1 h-8 block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300"
+let buttonStyling = "bg-gray-600 w-8 h-8 text-center rounded-lg"
+let sectionStyling = "flex flex-row space-x-1"
+let divStyling = "space-y-1"
 
 function localSave() : void {
     localStorage.setItem("total", String(index ? index + 1 : 0))
@@ -166,6 +167,7 @@ if (index != null) {
     let localContents = localStorage.getItem("formContents")
     if (localContents != null) {
         localContents = localContents.replace(/(\\|\")/g, "")
+        localContents = localContents.replace(RegExp(`${divStyling}`, 'g'), `\"${divStyling}\"`)
         localContents = localContents.replace(RegExp(`${buttonStyling}`, 'g'), `\"${buttonStyling}\"`)
         localContents = localContents.replace(RegExp(`${sectionStyling}`, 'g'), `\"${sectionStyling}\"`)
         localContents = localContents.replace(RegExp(`${textAreaStyling}`, 'g'), `\"${textAreaStyling}\"`)
@@ -183,7 +185,7 @@ document.getElementById("createGrouping")?.addEventListener("click", createGroup
 
 function addGrouping() : void {
     const element = 
-        `<div id=d${index}>
+        `<div id=d${index} class=${divStyling}>
             <label for=label${index} name=grouping${index}>Grouping</label>
             <section id=label${index} class="${sectionStyling}">
                 <textarea id=key${index} class="${textAreaStyling}"></textarea>

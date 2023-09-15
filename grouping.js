@@ -47,9 +47,10 @@ var tabs;
 var local_index = localStorage.getItem("total");
 var index = local_index == null ? form.childElementCount : Number(local_index) - 1;
 var selectionRange = [-1, -1];
-var textAreaStyling = "resize-none";
-var buttonStyling = "bg-gray-600 w-10 text-center";
-var sectionStyling = "flex-row";
+var textAreaStyling = "resize-none p-1 h-8 block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300";
+var buttonStyling = "bg-gray-600 w-8 h-8 text-center rounded-lg";
+var sectionStyling = "flex flex-row space-x-1";
+var divStyling = "space-y-1";
 function localSave() {
     localStorage.setItem("total", String(index ? index + 1 : 0));
     var formContents = form.innerHTML;
@@ -228,6 +229,7 @@ if (index != null) {
     var localContents = localStorage.getItem("formContents");
     if (localContents != null) {
         localContents = localContents.replace(/(\\|\")/g, "");
+        localContents = localContents.replace(RegExp("".concat(divStyling), 'g'), "\"".concat(divStyling, "\""));
         localContents = localContents.replace(RegExp("".concat(buttonStyling), 'g'), "\"".concat(buttonStyling, "\""));
         localContents = localContents.replace(RegExp("".concat(sectionStyling), 'g'), "\"".concat(sectionStyling, "\""));
         localContents = localContents.replace(RegExp("".concat(textAreaStyling), 'g'), "\"".concat(textAreaStyling, "\""));
@@ -241,7 +243,7 @@ if (index != null) {
 (_a = document.getElementById("addGrouping")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", addGrouping);
 (_b = document.getElementById("createGrouping")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", createGroupings);
 function addGrouping() {
-    var element = "<div id=d".concat(index, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping</label>\n            <section id=label").concat(index, " class=\"").concat(sectionStyling, "\">\n                <textarea id=key").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n                <textarea id=value").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n            </section>\n            <button id=b").concat(index, " class=\"").concat(buttonStyling, "\">X</button>\n        </div>");
+    var element = "<div id=d".concat(index, " class=").concat(divStyling, ">\n            <label for=label").concat(index, " name=grouping").concat(index, ">Grouping</label>\n            <section id=label").concat(index, " class=\"").concat(sectionStyling, "\">\n                <textarea id=key").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n                <textarea id=value").concat(index, " class=\"").concat(textAreaStyling, "\"></textarea>\n            </section>\n            <button id=b").concat(index, " class=\"").concat(buttonStyling, "\">X</button>\n        </div>");
     form.insertAdjacentHTML("beforeend", element);
     var button = document.getElementById("b".concat(index));
     button.addEventListener("click", function (event) {
